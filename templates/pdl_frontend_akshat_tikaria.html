@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            outline: none;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background-color: #4f46e5;
+            color: white;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #4338ca;
+        }
+
+        .btn-ghost {
+            background-color: transparent;
+            color: #374151;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-ghost:hover {
+            background-color: #f3f4f6;
+        }
+
+        .btn-outline {
+            background-color: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 0.5rem 1rem;
+        }
+
+        .btn-outline:hover {
+            background-color: #f9fafb;
+        }
+
+        .input {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            ring: 2px;
+            ring-color: #4f46e5;
+        }
+
+        .select {
+            width: 100%;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            background-color: white;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+
+        .select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 9999px;
+            padding: 0.25rem 0.625rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-secondary {
+            background-color: #f3f4f6;
+            color: #374151;
+        }
+
+        .badge-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .dialog-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+
+        .dialog-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 28rem;
+            width: 90%;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-list {
+            display: grid;
+            border-radius: 0.375rem;
+            background-color: #f3f4f6;
+            padding: 0.25rem;
+        }
+
+        .tab-trigger {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .tab-trigger:hover {
+            background-color: #e5e7eb;
+        }
+
+        .tab-trigger.active {
+            background-color: white;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content {
+            margin-top: 1rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+        }
+
+        th {
+            font-weight: 600;
+            text-align: left;
+            padding: 0.75rem 1rem;
+            background-color: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.875rem;
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .overflow-x-auto {
+            overflow-x: auto;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #991b1b;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-credentials {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Main Page -->
+    <div id="mainPage" class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div class="max-w-2xl w-full">
+            <div class="text-center mb-12">
+                <h1 class="mb-2 text-indigo-900">Hospital Management System</h1>
+                <p class="text-gray-600">Efficient Healthcare Data Management</p>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-xl p-8 space-y-4">
+                <button onclick="navigateTo('doctorLogin')" class="w-full h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl flex items-center justify-center btn">
+                    <svg class="mr-3 h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                    </svg>
+                    <span class="text-xl">Doctor</span>
+                </button>
+
+                <button onclick="navigateTo('receptionist')" class="w-full h-20 bg-teal-600 hover:bg-teal-700 text-white rounded-xl flex items-center justify-center btn">
+                    <svg class="mr-3 h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="text-xl">Receptionist</span>
+                </button>
+
+                <button onclick="navigateTo('managerLogin')" class="w-full h-20 bg-amber-600 hover:bg-amber-700 text-white rounded-xl flex items-center justify-center btn">
+                    <svg class="mr-3 h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span class="text-xl">Manager</span>
+                </button>
+
+                <button onclick="navigateTo('patients')" class="w-full h-20 bg-purple-600 hover:bg-purple-700 text-white rounded-xl flex items-center justify-center btn">
+                    <svg class="mr-3 h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <span class="text-xl">Patients</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Login Page -->
+    <div id="doctorLogin" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div class="max-w-md w-full">
+            <div class="card">
+                <div class="card-header">
+                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                    <h2 class="text-center">Doctor Login</h2>
+                    <p class="text-center text-gray-600">Hospital Management System</p>
+                </div>
+                <div class="card-content">
+                    <form onsubmit="handleDoctorLogin(event)" class="space-y-6">
+                        <div id="loginError" class="alert-error hidden">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span id="loginErrorText">Invalid Doctor ID or Password</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="doctorId" class="block text-sm font-medium">Doctor ID</label>
+                            <input type="text" id="doctorId" class="input" placeholder="Enter your Doctor ID (e.g., DOC001)" required>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="doctorPassword" class="block text-sm font-medium">Password</label>
+                            <input type="password" id="doctorPassword" class="input" placeholder="Enter your password" required>
+                        </div>
+
+                        <button type="submit" class="w-full btn bg-indigo-600 hover:bg-indigo-700 text-white py-3">
+                            Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Login Page -->
+    <div id="managerLogin" class="hidden min-h-screen bg-gradient-to-br from-amber-50 to-yellow-100 flex items-center justify-center p-4">
+        <div class="max-w-md w-full">
+            <div class="card">
+                <div class="card-header">
+                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                    <h2 class="text-center">Manager Login</h2>
+                    <p class="text-center text-gray-600">Hospital Management System</p>
+                </div>
+                <div class="card-content">
+                    <form onsubmit="handleManagerLogin(event)" class="space-y-6">
+                        <div id="managerLoginError" class="alert-error hidden">
+                            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span>Invalid Password</span>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label for="managerPassword" class="block text-sm font-medium">Manager Password</label>
+                            <input type="password" id="managerPassword" class="input" placeholder="Enter manager password" required>
+                        </div>
+
+                        <button type="submit" class="w-full btn bg-amber-600 hover:bg-amber-700 text-white">
+                            Login
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Page -->
+    <div id="doctorPage" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <button onclick="handleDoctorLogout()" class="btn btn-ghost mb-2 flex items-center">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Logout
+                    </button>
+                    <h2 class="text-center" id="doctorWelcome">Welcome, Doctor</h2>
+                    <p class="text-center text-gray-600" id="doctorDept">Department</p>
+                    <p class="text-center text-sm text-gray-500 mt-2" id="sessionStatus"></p>
+                </div>
+                <div class="card-content">
+                    <div id="waitingPatients">
+                        <h3 class="mb-4 text-center">Waiting Patients Queue</h3>
+                        <div class="border rounded-lg overflow-hidden">
+                            <table id="doctorPatientsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Illness</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="doctorPatientsBody">
+                                    <tr>
+                                        <td colspan="6" class="text-center text-gray-500">No patients waiting</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-6 flex justify-center gap-4">
+                            <button onclick="refreshPatientQueue()" class="btn bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2">
+                                Refresh Queue
+                            </button>
+                            <button onclick="handleDoctorLogout()" class="btn btn-outline px-6 py-2">
+                                End Session
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="consultationForm" class="hidden">
+                        <h3 class="mb-4 text-center">Patient Consultation</h3>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <div class="grid grid-cols-2 gap-4 text-sm">
+                                <div><span class="font-semibold">Token:</span> <span id="consultTokenNumber"></span></div>
+                                <div><span class="font-semibold">Name:</span> <span id="consultName"></span></div>
+                                <div><span class="font-semibold">Age:</span> <span id="consultAge"></span></div>
+                                <div><span class="font-semibold">Gender:</span> <span id="consultGender"></span></div>
+                                <div class="col-span-2"><span class="font-semibold">Illness:</span> <span id="consultIllness"></span></div>
+                                <div class="col-span-2"><span class="font-semibold">Contact:</span> <span id="consultContact"></span></div>
+                            </div>
+                        </div>
+
+                        <form onsubmit="handleConsultationSubmit(event)" class="space-y-6">
+                            <div class="space-y-2">
+                                <label for="findings" class="block text-sm font-medium">Findings</label>
+                                <textarea id="findings" rows="3" class="input" placeholder="Enter examination findings" required></textarea>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="diagnosis" class="block text-sm font-medium">Diagnosis</label>
+                                <textarea id="diagnosis" rows="3" class="input" placeholder="Enter diagnosis" required></textarea>
+                            </div>
+
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center">
+                                    <label class="block text-sm font-medium">Prescriptions</label>
+                                    <button type="button" onclick="addPrescription()" class="btn btn-outline text-sm py-1 px-3">
+                                        + Add Medicine
+                                    </button>
+                                </div>
+                                <div id="prescriptionsList" class="space-y-3">
+                                    <!-- Prescriptions will be added here -->
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="button" onclick="cancelConsultation()" class="flex-1 btn btn-outline py-3">
+                                    Cancel
+                                </button>
+                                <button type="submit" class="flex-1 btn bg-green-600 hover:bg-green-700 text-white py-3">
+                                    Complete Consultation
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receptionist Page -->
+    <div id="receptionistPage" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                    <h2 class="text-center">Receptionist Page</h2>
+                    <p class="text-center text-gray-600">Hospital Management System</p>
+                </div>
+                <div class="card-content">
+                    <div class="tab-list" style="grid-template-columns: repeat(2, 1fr);">
+                        <button class="tab-trigger active" onclick="switchReceptionistTab('register')">Register Patient</button>
+                        <button class="tab-trigger" onclick="switchReceptionistTab('all')">All Patients</button>
+                    </div>
+
+                    <!-- Register Patient Tab -->
+                    <div id="registerTab" class="tab-content">
+                        <form onsubmit="handlePatientRegistration(event)" class="space-y-6">
+                            <div class="space-y-2">
+                                <label class="block text-sm font-medium">Department</label>
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-2" id="departmentButtonsContainer">
+                                    <!-- Department buttons will be dynamically generated here -->
+                                </div>
+                                <input type="hidden" id="patientDepartment" required>
+                                <p class="text-xs text-gray-500 mt-2" id="noDepartmentsMessage" style="display: none;">
+                                    No departments configured. Please contact your manager to set up departments.
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="patientName" class="block text-sm font-medium">Name</label>
+                                    <input type="text" id="patientName" class="input" placeholder="Enter patient name" required>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="patientAge" class="block text-sm font-medium">Age</label>
+                                    <input type="number" id="patientAge" class="input" placeholder="Enter age" required>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="patientGender" class="block text-sm font-medium">Gender</label>
+                                    <select id="patientGender" class="select" required>
+                                        <option value="">Select gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="patientContact" class="block text-sm font-medium">Contact Number</label>
+                                    <input type="tel" id="patientContact" class="input" placeholder="Enter contact number" required>
+                                </div>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="patientAddress" class="block text-sm font-medium">Address</label>
+                                <input type="text" id="patientAddress" class="input" placeholder="Enter address" required>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="patientIllness" class="block text-sm font-medium">Illness</label>
+                                <input type="text" id="patientIllness" class="input" placeholder="Enter illness/symptoms" required>
+                            </div>
+
+                            <button type="submit" class="w-full btn bg-teal-600 hover:bg-teal-700 text-white py-3">
+                                Submit
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- All Patients Tab -->
+                    <div id="allTab" class="tab-content hidden">
+                        <div class="mb-4">
+                            <p class="text-center text-gray-600" id="patientSummary">
+                                Overall: 0 | Waiting: 0 | Consulted: 0
+                            </p>
+                        </div>
+                        <div class="border rounded-lg overflow-hidden">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Department</th>
+                                        <th>Illness</th>
+                                        <th>Status</th>
+                                        <th>Fee</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="allPatientsBody">
+                                    <tr>
+                                        <td colspan="8" class="text-center text-gray-500">No patients registered yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manager Page -->
+    <div id="managerPage" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+        <div class="max-w-6xl mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                        <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                        </svg>
+                        Back
+                    </button>
+                    <h2 class="text-center">Manager Page</h2>
+                    <p class="text-center text-gray-600">Hospital Management System</p>
+                </div>
+                <div class="card-content">
+                    <div class="tab-list" style="grid-template-columns: repeat(4, 1fr);">
+                        <button class="tab-trigger active" onclick="switchManagerTab('settings')">System Settings</button>
+                        <button class="tab-trigger" onclick="switchManagerTab('stats')">Department Status</button>
+                        <button class="tab-trigger" onclick="switchManagerTab('doctors')">Doctors Sign In</button>
+                        <button class="tab-trigger" onclick="switchManagerTab('database')">Patient Database</button>
+                    </div>
+
+                    <!-- System Settings Tab -->
+                    <div id="managerSettingsTab" class="tab-content">
+                        <h3 class="mb-6 text-center">System Configuration</h3>
+
+                        <!-- Department Management Section -->
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                            <h4 class="font-medium mb-4">Department Management</h4>
+                            <form onsubmit="handleAddDepartment(event)" class="space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div class="space-y-2">
+                                        <label for="deptName" class="block text-sm font-medium">Department Name</label>
+                                        <input type="text" id="deptName" class="input" placeholder="e.g., Cardiology" required>
+                                    </div>
+                                    <div class="space-y-2">
+                                        <label for="deptFee" class="block text-sm font-medium">Consultation Fee (₹)</label>
+                                        <input type="number" id="deptFee" class="input" placeholder="e.g., 500" required min="0">
+                                    </div>
+                                    <div class="flex items-end">
+                                        <button type="submit" class="btn bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 w-full">
+                                            Add Department
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+
+                            <div class="mt-6 border-t pt-4">
+                                <h5 class="font-medium mb-3">Configured Departments</h5>
+                                <div class="border rounded-lg overflow-hidden">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th>Department Name</th>
+                                                <th>Consultation Fee</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="departmentsListBody">
+                                            <tr>
+                                                <td colspan="3" class="text-center text-gray-500">No departments configured yet</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Department Status Tab -->
+                    <div id="managerStatsTab" class="tab-content hidden">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="managerDepartmentStatsGrid">
+                            <!-- Stats will be populated here -->
+                        </div>
+                    </div>
+
+                    <!-- Doctors Sign In Tab -->
+                    <div id="managerDoctorsTab" class="tab-content hidden">
+                        <h3 class="mb-6 text-center">Register New Doctor</h3>
+                        
+                        <form onsubmit="handleDoctorRegistration(event)" class="space-y-6 mb-8">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="doctorUsername" class="block text-sm font-medium">Username (Doctor ID)</label>
+                                    <input type="text" id="doctorUsername" class="input" placeholder="e.g., DOC008" required>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="doctorPasswordReg" class="block text-sm font-medium">Password</label>
+                                    <input type="password" id="doctorPasswordReg" class="input" placeholder="Enter password" required>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="doctorNameReg" class="block text-sm font-medium">Full Name</label>
+                                    <input type="text" id="doctorNameReg" class="input" placeholder="e.g., Dr. John Smith" required>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="doctorDeptReg" class="block text-sm font-medium">Department</label>
+                                    <select id="doctorDeptReg" class="select" required>
+                                        <option value="">Select department</option>
+                                    </select>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="doctorAddress" class="block text-sm font-medium">Address</label>
+                                    <input type="text" id="doctorAddress" class="input" placeholder="Enter address" required>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <label for="doctorContactReg" class="block text-sm font-medium">Contact Number</label>
+                                    <input type="tel" id="doctorContactReg" class="input" placeholder="e.g., +1-555-0108" required>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="w-full btn bg-amber-600 hover:bg-amber-700 text-white py-3">
+                                Register Doctor
+                            </button>
+                        </form>
+
+                        <div class="border-t pt-6">
+                            <h3 class="mb-4 text-center">Registered Doctors</h3>
+                            <div class="mb-4">
+                                <p class="text-center text-gray-600" id="doctorSignInSummary">
+                                    Total Doctors: 0
+                                </p>
+                            </div>
+                            <div class="border rounded-lg overflow-hidden overflow-x-auto">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Username (ID)</th>
+                                            <th>Password</th>
+                                            <th>Name</th>
+                                            <th>Department</th>
+                                            <th>Address</th>
+                                            <th>Contact Number</th>
+                                            <th>Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="doctorSignInBody">
+                                        <tr>
+                                            <td colspan="7" class="text-center text-gray-500">No doctors registered yet</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Patient Database Tab -->
+                    <div id="managerDatabaseTab" class="tab-content hidden">
+                        <h3 class="mb-4 text-center">Consulted Patients Database</h3>
+                        <div class="mb-4">
+                            <p class="text-center text-gray-600" id="databaseSummary">
+                                Total Consulted Patients: 0
+                            </p>
+                        </div>
+                        <div class="border rounded-lg overflow-hidden overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Token</th>
+                                        <th>Name</th>
+                                        <th>Age</th>
+                                        <th>Gender</th>
+                                        <th>Contact</th>
+                                        <th>Department</th>
+                                        <th>Illness</th>
+                                        <th>Findings</th>
+                                        <th>Diagnosis</th>
+                                        <th>Prescription</th>
+                                        <th>Fee</th>
+                                        <th>Doctor</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="managerDatabaseBody">
+                                    <tr>
+                                        <td colspan="12" class="text-center text-gray-500">No consulted patients yet</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Patients Page (simplified) -->
+<div id="patientsPage" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                    <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                    Back
+                </button>
+                <h2 class="text-center">Patients Queue</h2>
+                <p class="text-center text-gray-600" id="waitingCount">Waiting Patients: 0</p>
+            </div>
+            <div class="card-content">
+                <div class="border rounded-lg overflow-hidden">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Token</th>
+                                <th>Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Department</th>
+                                <th>Illness</th>
+                                <th>Contact</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="waitingPatientsBody">
+                            <tr>
+                                <td colspan="8" class="text-center text-gray-500">No patients waiting</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Registration Success Dialog -->
+    <div id="registrationDialog" class="hidden dialog-overlay" onclick="closeDialogOnOverlay(event)">
+        <div class="dialog-content" onclick="event.stopPropagation()">
+            <h3 class="text-center mb-2">Registration Successful</h3>
+            <p class="text-center text-gray-600 text-sm mb-6">
+                Patient has been registered successfully. Please collect the fee and provide the token number.
+            </p>
+            <div class="space-y-6">
+                <div class="bg-indigo-50 border-2 border-indigo-200 rounded-lg p-6 text-center">
+                    <p class="text-gray-600 mb-2 text-sm">Token Number</p>
+                    <p class="text-indigo-900 text-3xl font-bold" id="dialogTokenNumber">-</p>
+                </div>
+                <div class="bg-green-50 border-2 border-green-200 rounded-lg p-6 text-center">
+                    <p class="text-gray-600 mb-2 text-sm">Consultation Fee</p>
+                    <p class="text-green-900 text-3xl font-bold" id="dialogFee">₹-</p>
+                </div>
+                <button onclick="closeRegistrationDialog()" class="w-full btn bg-teal-600 hover:bg-teal-700 text-white py-3">
+                    Next Patient
+                </button>
+            </div>
+        </div>
+    </div>
+
+<script defer>
+
+// ===================================================
+// CONFIG & APP STATE
+// ===================================================
+const API_BASE = "http://127.0.0.1:5000/api";
+
+const appState = {
+  currentPage: "main",          // 'main' | 'doctor' | 'receptionist' | 'manager' | 'patients'
+  currentDoctor: null,          // { id, name, department, address, contact }
+  currentPatientForConsult: null,
+  receptionistTab: "register",  // 'register' | 'all'
+  managerTab: "settings"        // 'settings' | 'stats' | 'doctors' | 'database'
+};
+
+// small helper
+const el = (id) => document.getElementById(id);
+
+// safe json parse
+async function safeJSON(resp) {
+  if (!resp) return {};
+  try {
+    return await resp.json();
+  } catch (e) {
+    return {};
+  }
+}
+
+// ===================================================
+// NAVIGATION & INIT
+// ===================================================
+function navigateTo(page) {
+  const pages = [
+    "mainPage", "doctorLogin", "managerLogin",
+    "doctorPage", "receptionistPage", "patientsPage", "managerPage"
+  ];
+  pages.forEach(pid => { const n = el(pid); if (n) n.classList.add("hidden"); });
+
+  const targetId = page.endsWith("Page") || page.endsWith("Login") ? page : page + "Page";
+  const target = el(targetId);
+  if (target) {
+    target.classList.remove("hidden");
+    appState.currentPage = page;
+  } else {
+    console.warn("navigateTo: target not found:", targetId);
+  }
+
+  // page-specific updates
+  if (page === "doctor") {
+    updateDoctorPage();
+  } else if (page === "receptionist") {
+    updateDepartmentButtons();
+    switchReceptionistTab("register");
+  } else if (page === "patients") {
+    updatePatientsPage();
+  } else if (page === "manager") {
+    // keep current manager tab selection persistent
+    switchManagerTab(appState.managerTab || "settings");
+  }
+}
+
+// Initial setup on DOMContentLoaded
+window.addEventListener("DOMContentLoaded", () => {
+  navigateTo("main");
+
+  // initial loads
+  updateDepartmentButtons();
+  updateManagerDepartmentsList();
+  updateManagerDepartmentStats();
+  updateManagerDoctorSignIn();
+  updateManagerDatabase();
+
+  // small warm-up refresh
+  setTimeout(() => safeRefresh(), 250);
+});
+
+// ===================================================
+// MANAGER TAB SWITCHING (reliable)
+// ===================================================
+function switchManagerTab(tab) {
+  appState.managerTab = tab;
+
+  const triggers = document.querySelectorAll("#managerPage .tab-trigger");
+  triggers.forEach(t => t.classList.remove("active"));
+
+  const idMap = {
+    settings: "managerSettingsTab",
+    stats: "managerStatsTab",
+    doctors: "managerDoctorsTab",
+    database: "managerDatabaseTab"
+  };
+
+  // hide all
+  Object.values(idMap).forEach(id => el(id) && el(id).classList.add("hidden"));
+  // show chosen
+  el(idMap[tab]) && el(idMap[tab]).classList.remove("hidden");
+
+  // set trigger active (mapping by position is consistent in your template)
+  if (tab === "settings") triggers[0] && triggers[0].classList.add("active");
+  else if (tab === "stats") triggers[1] && triggers[1].classList.add("active");
+  else if (tab === "doctors") triggers[2] && triggers[2].classList.add("active");
+  else if (tab === "database") triggers[3] && triggers[3].classList.add("active");
+
+  // one-off refresh after switching
+  setTimeout(() => safeRefresh(), 120);
+
+if (tab === "stats") {
+    showDepartmentCards();
+}
+
+}
+
+// ===================================================
+// DEPARTMENTS (Manager & Receptionist)
+// ===================================================
+async function updateDepartmentButtons() {
+  // fills receptionist department buttons
+  try {
+    const res = await fetch(`${API_BASE}/departments`);
+    const departments = await safeJSON(res);
+    const container = el("departmentButtonsContainer");
+    const noDeptMsg = el("noDepartmentsMessage");
+    if (!container) return;
+
+    container.innerHTML = "";
+    if (!departments || Object.keys(departments).length === 0) {
+      if (noDeptMsg) noDeptMsg.style.display = "block";
+      return;
+    } else {
+      if (noDeptMsg) noDeptMsg.style.display = "none";
+    }
+
+    for (const [name, fee] of Object.entries(departments)) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn btn-outline patient-dept-btn";
+      btn.textContent = `${name}`;
+      btn.dataset.dept = name;
+      btn.addEventListener("click", () => {
+        // visual select
+        document.querySelectorAll(".patient-dept-btn").forEach(b => {
+          b.classList.remove("bg-indigo-600","text-white","hover:bg-indigo-700");
+          b.classList.add("btn-outline");
+        });
+        btn.classList.remove("btn-outline");
+        btn.classList.add("bg-indigo-600","text-white","hover:bg-indigo-700");
+        if (el("patientDepartment")) el("patientDepartment").value = name;
+      });
+      container.appendChild(btn);
+    }
+  } catch (err) {
+    console.error("updateDepartmentButtons error:", err);
+  }
+}
+
+async function updateManagerDepartmentsList() {
+  try {
+    const res = await fetch(`${API_BASE}/departments`);
+    const departments = await safeJSON(res);
+    const tbody = el("departmentsListBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    if (!departments || Object.keys(departments).length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500">No departments configured yet</td></tr>`;
+      return;
+    }
+
+    for (const [name, fee] of Object.entries(departments)) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${name}</td>
+        <td>₹${fee}</td>
+        <td><button class="btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
+      `;
+      const delBtn = tr.querySelector("button");
+      delBtn.addEventListener("click", async () => {
+        if (!confirm(`Delete department "${name}"?`)) return;
+        try {
+          const dres = await fetch(`${API_BASE}/departments/${encodeURIComponent(name)}`, { method: "DELETE" });
+          const result = await safeJSON(dres);
+          if (result.success) {
+            alert(`Deleted ${name}`);
+            await updateDepartmentButtons();
+            await updateManagerDepartmentsList();
+            await updateManagerDepartmentStats();
+            await showDepartmentCards();
+          } else {
+            alert(result.message || "Could not delete department");
+          }
+        } catch (e) {
+          console.error("delete dept error", e);
+        }
+      });
+      tbody.appendChild(tr);
+    }
+  } catch (err) {
+    console.error("updateManagerDepartmentsList error:", err);
+  }
+}
+
+async function handleAddDepartment(event) {
+  event && event.preventDefault();
+  const name = (el("deptName")?.value || "").trim();
+  const fee = parseFloat(el("deptFee")?.value);
+  if (!name || isNaN(fee)) { alert("Please enter valid name & fee"); return; }
+
+  try {
+    const res = await fetch(`${API_BASE}/departments`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ name, fee })
+    });
+    const data = await safeJSON(res);
+    if (data.success) {
+      alert(`Department "${name}" added`);
+      el("deptName").value = "";
+      el("deptFee").value = "";
+      await updateDepartmentButtons();
+      await updateManagerDepartmentsList();
+      await updateManagerDepartmentStats();
+      await showDepartmentCards();
+    } else {
+      alert(data.message || "Could not add department");
+    }
+  } catch (err) {
+    console.error("handleAddDepartment error:", err);
+    alert("Server error while adding department");
+  }
+}
+
+async function updateManagerDepartmentStats() {
+  try {
+    const res = await fetch(`${API_BASE}/departments`);
+    const departments = await safeJSON(res);
+    const tbody = el("departmentsListBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+    if (!departments || Object.keys(departments).length === 0) {
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500">No departments configured yet</td></tr>`;
+      return;
+    }
+    for (const [name, fee] of Object.entries(departments)) {
+      tbody.innerHTML += `
+        <tr>
+          <td>${name}</td>
+          <td>₹${fee}</td>
+          <td><button onclick="deleteDepartment('${encodeURIComponent(name)}')" class="btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
+        </tr>`;
+    }
+  } catch (err) {
+    console.error("updateManagerDepartmentStats error:", err);
+  }
+}
+
+// Delete department wrapper for compatibility (some places call deleteDepartment(name) directly)
+async function deleteDepartment(nameEncodedOrPlain) {
+  // Accept either encoded or plain as passed; try to decode to get original for prompt
+  let decoded;
+  try { decoded = decodeURIComponent(nameEncodedOrPlain); } catch(_) { decoded = nameEncodedOrPlain; }
+  if (!confirm(`Delete ${decoded}?`)) return;
+  try {
+    const res = await fetch(`${API_BASE}/departments/${encodeURIComponent(decoded)}`, { method: "DELETE" });
+    const result = await safeJSON(res);
+    if (result.success) {
+      alert(`🗑️ ${decoded} deleted.`);
+      await updateDepartmentButtons();
+      await updateManagerDepartmentsList();
+      await updateManagerDepartmentStats();
+      await showDepartmentCards();
+    } else {
+      alert(result.message || "Could not delete department");
+    }
+  } catch (err) {
+    console.error("deleteDepartment error:", err);
+    alert("Server error while deleting department");
+  }
+}
+
+async function showDepartmentCards() {
+  try {
+    const res = await fetch(`${API_BASE}/departments`);
+    const departments = await safeJSON(res);
+    const grid = el("managerDepartmentStatsGrid");
+    if (!grid) return;
+    grid.innerHTML = "";
+    if (!departments || Object.keys(departments).length === 0) {
+      grid.innerHTML = `<p class="text-center text-gray-500 col-span-3">No departments configured.</p>`;
+      return;
+    }
+    for (const [name, fee] of Object.entries(departments)) {
+      const card = document.createElement("div");
+      card.className = "card p-4 text-center";
+      card.innerHTML = `<h4 class="text-lg font-semibold text-indigo-800">${name}</h4>
+                        <p class="text-gray-600">Consultation Fee: ₹${fee}</p>`;
+      grid.appendChild(card);
+    }
+  } catch (err) {
+    console.error("showDepartmentCards error:", err);
+  }
+}
+
+// ===================================================
+// DOCTORS (manager & login flow)
+// ===================================================
+async function populateDepartmentDropdown() {
+  const select = el("doctorDeptReg");
+  if (!select) return;
+  select.innerHTML = '<option value="">Select department</option>';
+  try {
+    const res = await fetch(`${API_BASE}/departments`);
+    const departments = await safeJSON(res);
+    for (const dept of Object.keys(departments || {})) {
+      const opt = document.createElement("option");
+      opt.value = dept; opt.textContent = dept;
+      select.appendChild(opt);
+    }
+  } catch (err) {
+    console.error("populateDepartmentDropdown error", err);
+  }
+}
+
+async function handleDoctorRegistration(event) {
+  event && event.preventDefault();
+  const id = (el("doctorUsername")?.value || "").trim().toUpperCase();
+  const data = {
+    id,
+    password: (el("doctorPasswordReg")?.value || "").trim(),
+    name: (el("doctorNameReg")?.value || "").trim(),
+    department: (el("doctorDeptReg")?.value || "").trim(),
+    address: (el("doctorAddress")?.value || "").trim(),
+    contact: (el("doctorContactReg")?.value || "").trim()
+  };
+  if (!data.id || !data.password || !data.name || !data.department) {
+    alert("Please fill required fields");
+    return;
+  }
+  try {
+    const res = await fetch(`${API_BASE}/doctors`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(data)
+    });
+    const result = await safeJSON(res);
+    if (result.success) {
+      alert("Doctor registered");
+      event.target.reset();
+      await updateManagerDoctorSignIn();
+    } else {
+      alert(result.message || "Could not register doctor");
+    }
+  } catch (err) {
+    console.error("handleDoctorRegistration error:", err);
+  }
+}
+
+async function updateManagerDoctorSignIn() {
+  try {
+    const res = await fetch(`${API_BASE}/doctors`);
+    const doctors = await safeJSON(res);
+    const tbody = el("doctorSignInBody");
+    if (!tbody) return;
+    const ids = Object.keys(doctors || {});
+    el("doctorSignInSummary") && (el("doctorSignInSummary").textContent = `Total Doctors: ${ids.length}`);
+    if (!ids.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">No doctors registered yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = ids.map(id => {
+      const d = doctors[id];
+      return `<tr>
+        <td><span class="badge badge-secondary">${id}</span></td>
+        <td>${d.password}</td>
+        <td>${d.name}</td>
+        <td>${d.department}</td>
+        <td>${d.address}</td>
+        <td>${d.contact}</td>
+        <td><button data-id="${id}" class="del-doc btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
+      </tr>`;
+    }).join("");
+    // attach handlers
+    document.querySelectorAll(".del-doc").forEach(b => {
+      b.addEventListener("click", async (ev) => {
+        const id = b.dataset.id;
+        if (!confirm(`Delete doctor ${id}?`)) return;
+        try {
+          const res = await fetch(`${API_BASE}/doctors/${encodeURIComponent(id)}`, { method: "DELETE" });
+          const dres = await safeJSON(res);
+          if (dres.success) {
+            alert("Doctor deleted");
+            await updateManagerDoctorSignIn();
+          } else alert(dres.message || "Delete failed");
+        } catch (e) { console.error("delete doctor error", e); }
+      });
+    });
+  } catch (err) {
+    console.error("updateManagerDoctorSignIn error:", err);
+  }
+}
+
+// doctor login/logout
+async function handleDoctorLogin(event) {
+  event && event.preventDefault();
+  const id = (el("doctorId")?.value || "").trim().toUpperCase();
+  const password = (el("doctorPassword")?.value || "").trim();
+  try {
+    const res = await fetch(`${API_BASE}/doctors/login`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ id, password })
+    });
+    const data = await safeJSON(res);
+    if (data.success && data.doctor) {
+      appState.currentDoctor = { id, ...data.doctor };
+      el("doctorWelcome").textContent = `Welcome, ${data.doctor.name}`;
+      el("doctorDept").textContent = data.doctor.department;
+      navigateTo("doctor");
+      // immediate queue fetch
+      await updateDoctorPage();
+    } else {
+      el("loginError") && el("loginError").classList.remove("hidden");
+      el("loginErrorText") && (el("loginErrorText").textContent = data.message || "Invalid ID or password");
+    }
+  } catch (err) {
+    console.error("handleDoctorLogin error:", err);
+    el("loginError") && el("loginError").classList.remove("hidden");
+    el("loginErrorText") && (el("loginErrorText").textContent = "Server error");
+  }
+}
+
+function handleDoctorLogout() {
+  appState.currentDoctor = null;
+  appState.currentPatientForConsult = null;
+  // reset UI
+  if (el("doctorWelcome")) el("doctorWelcome").textContent = "Welcome, Doctor";
+  if (el("doctorDept")) el("doctorDept").textContent = "Department";
+  if (el("waitingPatients")) el("waitingPatients").classList.remove("hidden");
+  if (el("consultationForm")) el("consultationForm").classList.add("hidden");
+  navigateTo("main");
+}
+
+// ===================================================
+// PATIENTS: registration, receptionist listing, patients public page
+// ===================================================
+async function handlePatientRegistration(event) {
+  event && event.preventDefault();
+
+  const name = (el("patientName")?.value || "").trim();
+  const age = parseInt(el("patientAge")?.value || "0", 10);
+  const gender = (el("patientGender")?.value || "").trim();
+  const contactNumber = (el("patientContact")?.value || "").trim();
+  const address = (el("patientAddress")?.value || "").trim();
+  const illness = (el("patientIllness")?.value || "").trim();
+  const department = (el("patientDepartment")?.value || "").trim();
+
+  if (!department) { alert("⚠️ Please select a department before registering."); return; }
+  if (!name || !age || !gender) { alert("⚠️ Please fill all required fields."); return; }
+
+  const payload = { name, age, gender, contactNumber, address, illness, department };
+  console.log("Register patient payload:", payload);
+
+  try {
+    const res = await fetch(`${API_BASE}/patients`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const result = await safeJSON(res);
+    console.log("Registration result:", result);
+    if (result.success) {
+      alert(`✅ Patient registered!\nToken: ${result.token}\nFee: ₹${result.fee}`);
+      // reset form and department highlight
+      event.target.reset();
+      if (el("patientDepartment")) el("patientDepartment").value = "";
+      document.querySelectorAll(".patient-dept-btn").forEach(b => {
+        b.classList.remove("bg-indigo-600","text-white","hover:bg-indigo-700");
+        b.classList.add("btn-outline");
+      });
+      // refresh relevant lists
+      await updateReceptionistAllPatients();
+      await updatePatientsPage();
+      await updateDoctorPage(); // doctors viewing queue may want immediate update
+    } else {
+      alert(`Registration failed: ${result.message || "unknown error"}`);
+    }
+  } catch (err) {
+    console.error("handlePatientRegistration error:", err);
+    alert("Server error while registering patient.");
+  }
+}
+
+// receptionist "All Patients"
+async function updateReceptionistAllPatients() {
+  try {
+    const res = await fetch(`${API_BASE}/patients`);
+    const patients = await safeJSON(res);
+    const tbody = el("allPatientsBody");
+    if (!tbody) return;
+
+    const total = (patients || []).length;
+    const waiting = (patients || []).filter(p => p.status === "waiting").length;
+    const called = (patients || []).filter(p => p.status === "called").length;
+    const consulted = (patients || []).filter(p => p.status === "consulted").length;
+    el("patientSummary") && (el("patientSummary").textContent = `Overall: ${total} | Waiting: ${waiting} | Called: ${called} | Consulted: ${consulted}`);
+
+    if (!patients || patients.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500">No patients registered yet</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = (patients || []).map(p => {
+      return `<tr>
+        <td>${p.tokenNumber}</td>
+        <td>${p.name}</td>
+        <td>${p.age}</td>
+        <td>${p.gender}</td>
+        <td>${p.department}</td>
+        <td>${p.illness}</td>
+        <td>${p.status}</td>
+        <td>₹${p.fee || 0}</td>
+      </tr>`;
+    }).join("");
+  } catch (err) {
+    console.error("updateReceptionistAllPatients error:", err);
+  }
+}
+
+// public patients page
+async function updatePatientsPage() {
+  try {
+    const res = await fetch(`${API_BASE}/patients`);
+    const patients = await safeJSON(res);
+    const active = (patients || []).filter(p => p.status !== "consulted");
+    const tbody = el("waitingPatientsBody");
+    el("waitingCount") && (el("waitingCount").textContent = `Waiting Patients: ${active.length}`);
+    if (!tbody) return;
+    if (!active.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500">No patients waiting</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = active.map(p => `
+      <tr class="${p.status === 'called' ? 'bg-green-50' : ''}">
+        <td>${p.tokenNumber}</td>
+        <td>${p.name}</td>
+        <td>${p.age}</td>
+        <td>${p.gender}</td>
+        <td>${p.department}</td>
+        <td>${p.illness}</td>
+        <td>${p.contactNumber || '-'}</td>
+        <td>${p.status === 'called' ? "<span class='text-green-700 font-medium'>Doctor Ready</span>" : "Waiting"}</td>
+      </tr>`).join("");
+  } catch (err) {
+    console.error("updatePatientsPage error:", err);
+  }
+}
+
+// receptionist tab switch
+function switchReceptionistTab(tab) {
+  appState.receptionistTab = tab;
+  const triggers = document.querySelectorAll('#receptionistPage .tab-trigger');
+  triggers.forEach(t => t.classList.remove('active'));
+  if (triggers[0]) triggers[0].classList.toggle('active', tab === 'register');
+  if (triggers[1]) triggers[1].classList.toggle('active', tab === 'all');
+
+  el('registerTab') && el('registerTab').classList.toggle('hidden', tab !== 'register');
+  el('allTab') && el('allTab').classList.toggle('hidden', tab === 'register');
+
+  if (tab === 'all') updateReceptionistAllPatients();
+}
+
+// ===================================================
+// DOCTOR QUEUE, CALLING & CONSULTATION
+// ===================================================
+async function updateDoctorPage() {
+  // show a message if no doctor signed in
+  if (!appState.currentDoctor) {
+    const tbody = el("doctorPatientsBody");
+    if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500">No doctor signed in</td></tr>`;
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/patients`);
+    const patients = await safeJSON(res);
+    // doctor sees waiting + called patients for their department
+    const queue = (patients || []).filter(p => p.department === appState.currentDoctor.department && (p.status === "waiting" || p.status === "called"));
+    const tbody = el("doctorPatientsBody");
+    if (!tbody) return;
+    if (!queue.length) {
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500">No patients waiting</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = queue.map(p => `
+      <tr class="${p.status === 'called' ? 'bg-green-50' : ''}">
+        <td>${p.tokenNumber}</td>
+        <td>${p.name}</td>
+        <td>${p.age}</td>
+        <td>${p.gender}</td>
+        <td>${p.illness}</td>
+        <td>
+          ${p.status === 'waiting' ? `<button data-token="${p.tokenNumber}" class="call-btn btn bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-2 py-1">Call</button>` : `<span class="text-green-600 font-medium">Called</span>`}
+          <button data-id="${p.id}" class="start-btn btn bg-green-600 text-white text-sm px-2 py-1">Start</button>
+        </td>
+      </tr>`).join("");
+
+    // attach handlers
+    document.querySelectorAll(".call-btn").forEach(b => {
+      b.onclick = async () => {
+        const token = parseInt(b.dataset.token, 10);
+        await callPatient(token);
+      };
+    });
+    document.querySelectorAll(".start-btn").forEach(b => {
+      b.onclick = () => {
+        const id = parseInt(b.dataset.id, 10);
+        startConsultation(id);
+      };
+    });
+
+  } catch (err) {
+    console.error("updateDoctorPage error:", err);
+  }
+}
+
+async function callPatient(token) {
+  try {
+    const res = await fetch(`${API_BASE}/patients/${token}/call`, { method: "PUT" });
+    const data = await safeJSON(res);
+    if (data.success) {
+      alert(`📞 Patient Token #${token} has been called`);
+      await updateDoctorPage();
+      await updatePatientsPage();
+      await updateReceptionistAllPatients();
+    } else {
+      alert(data.message || "Could not call patient");
+    }
+  } catch (err) {
+    console.error("callPatient error:", err);
+    alert("Server error when calling patient");
+  }
+}
+
+async function startConsultation(patientId) {
+  try {
+    const res = await fetch(`${API_BASE}/patients`);
+    const patients = await safeJSON(res);
+    const patient = (patients || []).find(p => p.id === patientId);
+    if (!patient) { alert("Patient not found"); return; }
+
+    appState.currentPatientForConsult = patient;
+    el("consultTokenNumber") && (el("consultTokenNumber").textContent = patient.tokenNumber);
+    el("consultName") && (el("consultName").textContent = patient.name);
+    el("consultAge") && (el("consultAge").textContent = patient.age);
+    el("consultGender") && (el("consultGender").textContent = patient.gender);
+    el("consultIllness") && (el("consultIllness").textContent = patient.illness);
+    el("consultContact") && (el("consultContact").textContent = patient.contactNumber || "-");
+
+    // show consultation form
+    el("waitingPatients") && el("waitingPatients").classList.add("hidden");
+    el("consultationForm") && el("consultationForm").classList.remove("hidden");
+
+    // clear prescriptions
+    if (el("prescriptionsList")) el("prescriptionsList").innerHTML = "";
+
+  } catch (err) {
+    console.error("startConsultation error:", err);
+  }
+}
+
+function addPrescription() {
+  const list = el("prescriptionsList");
+  if (!list) return;
+  const div = document.createElement("div");
+  div.className = "flex gap-2";
+  div.innerHTML = `
+    <input type="text" placeholder="Medicine name" class="input flex-1" data-med-name />
+    <input type="text" placeholder="Dosage" class="input w-32" data-med-dose />
+    <button type="button" class="btn btn-outline text-sm">🗑</button>
+  `;
+  div.querySelector("button").onclick = () => div.remove();
+  list.appendChild(div);
+}
+
+function cancelConsultation() {
+  appState.currentPatientForConsult = null;
+  el("consultationForm") && el("consultationForm").classList.add("hidden");
+  el("waitingPatients") && el("waitingPatients").classList.remove("hidden");
+}
+
+async function handleConsultationSubmit(event) {
+  event && event.preventDefault();
+  const patient = appState.currentPatientForConsult;
+  if (!patient || !appState.currentDoctor) { alert("Invalid consultation state"); return; }
+
+  const prescriptions = Array.from(el("prescriptionsList")?.children || []).map(div => {
+    const name = (div.querySelector("[data-med-name]")?.value || "").trim();
+    const dose = (div.querySelector("[data-med-dose]")?.value || "").trim();
+    return name ? `${name} - ${dose}` : null;
+  }).filter(Boolean).join(", ");
+
+  const payload = {
+    findings: (el("findings")?.value || "").trim(),
+    diagnosis: (el("diagnosis")?.value || "").trim(),
+    prescriptions: prescriptions || "",
+    doctorName: appState.currentDoctor.name || "",
+    doctorId: appState.currentDoctor.id || ""
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/patients/${patient.tokenNumber}/consult`, {
+      method: "PUT",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify(payload)
+    });
+    const data = await safeJSON(res);
+    if (data.success) {
+      alert("Consultation saved");
+      // reset form
+      if (el("findings")) el("findings").value = "";
+      if (el("diagnosis")) el("diagnosis").value = "";
+      if (el("prescriptionsList")) el("prescriptionsList").innerHTML = "";
+      cancelConsultation();
+      // refresh lists
+      await updateDoctorPage();
+      await updateReceptionistAllPatients();
+      await updateManagerDatabase();
+      await updatePatientsPage();
+    } else {
+      alert(data.message || "Could not save consultation");
+    }
+  } catch (err) {
+    console.error("handleConsultationSubmit error:", err);
+    alert("Server error saving consultation");
+  }
+}
+
+// ===================================================
+// MANAGER: PATIENT DATABASE
+// ===================================================
+async function updateManagerDatabase() {
+  try {
+    const res = await fetch(`${API_BASE}/patients`);
+    const patients = await safeJSON(res);
+    const consulted = (patients || []).filter(p => p.status === "consulted");
+    const tbody = el("managerDatabaseBody");
+    el("databaseSummary") && (el("databaseSummary").textContent = `Total Consulted Patients: ${consulted.length}`);
+    if (!tbody) return;
+    if (!consulted.length) {
+      tbody.innerHTML = `<tr><td colspan="12" class="text-center text-gray-500">No consulted patients yet</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = consulted.map(p => `
+      <tr>
+        <td>${p.tokenNumber}</td>
+        <td>${p.name}</td>
+        <td>${p.age}</td>
+        <td>${p.gender}</td>
+        <td>${p.contactNumber || '-'}</td>
+        <td>${p.department}</td>
+        <td>${p.illness}</td>
+        <td>${p.findings || '-'}</td>
+        <td>${p.diagnosis || '-'}</td>
+        <td>${p.prescriptions || '-'}</td>
+        <td>₹${p.fee}</td>
+        <td>${p.doctorName || '-'}</td>
+      </tr>`).join("");
+  } catch (err) {
+    console.error("updateManagerDatabase error:", err);
+  }
+}
+
+// ===================================================
+// SAFE AUTO-REFRESH SYSTEM
+// ===================================================
+let refreshLock = false;
+async function safeRefresh() {
+  if (refreshLock) return;
+  refreshLock = true;
+  try {
+    switch (appState.currentPage) {
+      case "manager": await refreshManagerTab(); break;
+      case "doctor": await updateDoctorPage(); break;
+      case "receptionist": await updateReceptionistAllPatients(); break;
+      case "patients": await updatePatientsPage(); break;
+      default: break;
+    }
+  } catch (err) {
+    console.warn("safeRefresh error:", err);
+  } finally {
+    refreshLock = false;
+  }
+}
+
+async function refreshManagerTab() {
+  const tab = appState.managerTab || "settings";
+  await new Promise(r => setTimeout(r, 100));
+  if (tab === "settings") { await updateManagerDepartmentsList(); await updateDepartmentButtons(); }
+  else if (tab === "stats") await updateManagerDepartmentStats();
+  else if (tab === "doctors") { await populateDepartmentDropdown(); await updateManagerDoctorSignIn(); }
+  else if (tab === "database") await updateManagerDatabase();
+}
+
+// Interval & visibility refresh
+setInterval(() => {
+  if (!document.hidden) safeRefresh();
+}, 7000);
+
+window.addEventListener("visibilitychange", () => {
+  if (!document.hidden) safeRefresh();
+});
+
+// ===================================================
+// Expose a few functions to global (for inline forms)
+// ===================================================
+window.handleManagerLogin = async (e) => {
+  e && e.preventDefault();
+  const password = (el("managerPassword")?.value || "").trim();
+  try {
+    const resp = await fetch(`${API_BASE}/manager/login`, {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ password })
+    });
+    const data = await safeJSON(resp);
+    if (data.success) {
+      navigateTo("manager");
+      setTimeout(() => safeRefresh(), 150);
+    } else {
+      el("managerLoginError") && el("managerLoginError").classList.remove("hidden");
+    }
+  } catch (err) {
+    console.error("manager login error", err);
+    el("managerLoginError") && el("managerLoginError").classList.remove("hidden");
+  }
+};
+window.handleDoctorLogin = handleDoctorLogin;
+window.handlePatientRegistration = handlePatientRegistration;
+window.handleAddDepartment = handleAddDepartment;
+window.handleDoctorRegistration = handleDoctorRegistration;
+window.navigateTo = navigateTo;
+</script>
+
+</body>
+</html>
