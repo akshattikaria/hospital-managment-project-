@@ -275,7 +275,7 @@
                     <span class="text-xl">Doctor</span>
                 </button>
 
-                <button onclick="navigateTo('receptionist')" class="w-full h-20 bg-teal-600 hover:bg-teal-700 text-white rounded-xl flex items-center justify-center btn">
+                <button onclick="navigateTo('receptionistLogin')" class="w-full h-20 bg-teal-600 hover:bg-teal-700 text-white rounded-xl flex items-center justify-center btn">
                     <svg class="mr-3 h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
@@ -378,6 +378,29 @@
         </div>
     </div>
 
+    <!-- Receptionist Login Page -->
+    <div id="receptionistLogin" class="hidden min-h-screen bg-gradient-to-br from-teal-50 to-cyan-100 flex items-center justify-center p-4">
+        <div class="max-w-md w-full">
+            <div class="card">
+                <div class="card-header">
+                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2">Back</button>
+                    <h2 class="text-center">Receptionist Login</h2>
+                    <p class="text-center text-gray-600">Hospital Management System</p>
+                </div>
+                <div class="card-content">
+                    <form onsubmit="handleReceptionistLogin(event)" class="space-y-6">
+                        <div id="receptionistLoginError" class="alert-error hidden"><span>Invalid password</span></div>
+                        <div class="space-y-2">
+                            <label for="receptionistPassword" class="block text-sm font-medium">Receptionist Password</label>
+                            <input type="password" id="receptionistPassword" class="input" placeholder="Enter receptionist password" required>
+                        </div>
+                        <button type="submit" class="w-full btn bg-teal-600 hover:bg-teal-700 text-white py-3">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Doctor Page -->
     <div id="doctorPage" class="hidden min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
         <div class="max-w-6xl mx-auto">
@@ -394,6 +417,24 @@
                     <p class="text-center text-sm text-gray-500 mt-2" id="sessionStatus"></p>
                 </div>
                 <div class="card-content">
+                    <section class="bg-indigo-50 border border-indigo-100 rounded-lg p-4 mb-6">
+                        <h3 class="mb-3">Scheduled Appointments</h3>
+                        <div class="border rounded-lg overflow-x-auto bg-white">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date and Time</th>
+                                        <th>Patient</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="doctorAppointmentsBody">
+                                    <tr><td colspan="4" class="text-center text-gray-500">No appointments scheduled</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
                     <div id="waitingPatients">
                         <h3 class="mb-4 text-center">Waiting Patients Queue</h3>
                         <div class="border rounded-lg overflow-hidden">
@@ -481,7 +522,7 @@
         <div class="max-w-6xl mx-auto">
             <div class="card">
                 <div class="card-header">
-                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                    <button onclick="logoutToMain()" class="btn btn-ghost mb-2 flex items-center">
                         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
@@ -491,9 +532,10 @@
                     <p class="text-center text-gray-600">Hospital Management System</p>
                 </div>
                 <div class="card-content">
-                    <div class="tab-list" style="grid-template-columns: repeat(2, 1fr);">
+                    <div class="tab-list" style="grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));">
                         <button class="tab-trigger active" onclick="switchReceptionistTab('register')">Register Patient</button>
                         <button class="tab-trigger" onclick="switchReceptionistTab('all')">All Patients</button>
+                        <button class="tab-trigger" onclick="switchReceptionistTab('appointments')">Appointments</button>
                     </div>
 
                     <!-- Register Patient Tab -->
@@ -556,6 +598,10 @@
                     <!-- All Patients Tab -->
                     <div id="allTab" class="tab-content hidden">
                         <div class="mb-4">
+                            <label for="patientSearch" class="block text-sm font-medium mb-2">Find a patient</label>
+                            <input id="patientSearch" class="input" type="search" autocomplete="off" placeholder="Search token, name, contact, department, or status" oninput="schedulePatientSearch('receptionist')">
+                        </div>
+                        <div class="mb-4">
                             <p class="text-center text-gray-600" id="patientSummary">
                                 Overall: 0 | Waiting: 0 | Consulted: 0
                             </p>
@@ -582,6 +628,70 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Appointments Tab -->
+                    <div id="appointmentsTab" class="tab-content hidden">
+                        <div class="bg-teal-50 border border-teal-200 rounded-lg p-5 mb-6">
+                            <h3 class="mb-4">Schedule an Appointment</h3>
+                            <form onsubmit="handleAppointmentCreate(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label for="appointmentName" class="block text-sm font-medium">Patient Name</label>
+                                    <input id="appointmentName" class="input" maxlength="100" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="appointmentContact" class="block text-sm font-medium">Contact Number</label>
+                                    <input id="appointmentContact" type="tel" class="input" maxlength="50" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="appointmentAge" class="block text-sm font-medium">Age</label>
+                                    <input id="appointmentAge" type="number" min="1" max="120" class="input" required>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="appointmentGender" class="block text-sm font-medium">Gender</label>
+                                    <select id="appointmentGender" class="select" required>
+                                        <option value="">Select gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="appointmentDepartment" class="block text-sm font-medium">Department</label>
+                                    <select id="appointmentDepartment" class="select" required>
+                                        <option value="">Select department</option>
+                                    </select>
+                                </div>
+                                <div class="space-y-2">
+                                    <label for="appointmentAt" class="block text-sm font-medium">Date and Time</label>
+                                    <input id="appointmentAt" type="datetime-local" class="input" required>
+                                </div>
+                                <div class="space-y-2 md:col-span-2">
+                                    <label for="appointmentReason" class="block text-sm font-medium">Reason for Visit</label>
+                                    <input id="appointmentReason" class="input" maxlength="200" placeholder="Optional">
+                                </div>
+                                <button type="submit" class="md:col-span-2 btn bg-teal-600 hover:bg-teal-700 text-white py-3">Save Appointment</button>
+                            </form>
+                        </div>
+                        <h3 class="mb-4">Appointment Schedule</h3>
+                        <div class="border rounded-lg overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date and Time</th>
+                                        <th>Patient</th>
+                                        <th>Department</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Queue Token</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="appointmentListBody">
+                                    <tr><td colspan="7" class="text-center text-gray-500">No appointments scheduled</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -592,7 +702,7 @@
         <div class="max-w-6xl mx-auto">
             <div class="card">
                 <div class="card-header">
-                    <button onclick="navigateTo('main')" class="btn btn-ghost mb-2 flex items-center">
+                    <button onclick="logoutToMain()" class="btn btn-ghost mb-2 flex items-center">
                         <svg class="mr-2 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                         </svg>
@@ -602,11 +712,14 @@
                     <p class="text-center text-gray-600">Hospital Management System</p>
                 </div>
                 <div class="card-content">
-                    <div class="tab-list" style="grid-template-columns: repeat(4, 1fr);">
+                    <div class="tab-list" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
                         <button class="tab-trigger active" onclick="switchManagerTab('settings')">System Settings</button>
                         <button class="tab-trigger" onclick="switchManagerTab('stats')">Department Status</button>
                         <button class="tab-trigger" onclick="switchManagerTab('doctors')">Doctors Sign In</button>
                         <button class="tab-trigger" onclick="switchManagerTab('database')">Patient Database</button>
+                        <button class="tab-trigger" onclick="switchManagerTab('appointments')">Appointments</button>
+                        <button class="tab-trigger" onclick="switchManagerTab('audit')">Activity Log</button>
+                        <button class="tab-trigger" onclick="switchManagerTab('dataHealth')">Data Health</button>
                     </div>
 
                     <!-- System Settings Tab -->
@@ -676,7 +789,7 @@
 
                                 <div class="space-y-2">
                                     <label for="doctorPasswordReg" class="block text-sm font-medium">Password</label>
-                                    <input type="password" id="doctorPasswordReg" class="input" placeholder="Enter password" required>
+                                    <input type="password" id="doctorPasswordReg" class="input" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password">
                                 </div>
 
                                 <div class="space-y-2">
@@ -719,7 +832,7 @@
                                     <thead>
                                         <tr>
                                             <th>Username (ID)</th>
-                                            <th>Password</th>
+                                            <th>Credential Status</th>
                                             <th>Name</th>
                                             <th>Department</th>
                                             <th>Address</th>
@@ -740,6 +853,10 @@
                     <!-- Patient Database Tab -->
                     <div id="managerDatabaseTab" class="tab-content hidden">
                         <h3 class="mb-4 text-center">Consulted Patients Database</h3>
+                        <div class="mb-4">
+                            <label for="managerPatientSearch" class="block text-sm font-medium mb-2">Find a consultation</label>
+                            <input id="managerPatientSearch" class="input" type="search" autocomplete="off" placeholder="Search patient, token, department, diagnosis, or doctor" oninput="schedulePatientSearch('manager')">
+                        </div>
                         <div class="mb-4">
                             <p class="text-center text-gray-600" id="databaseSummary">
                                 Total Consulted Patients: 0
@@ -771,6 +888,80 @@
                             </table>
                         </div>
                     </div>
+
+                    <!-- Appointment Management Tab -->
+                    <div id="managerAppointmentsTab" class="tab-content hidden">
+                        <h3 class="mb-4 text-center">Appointment Schedule</h3>
+                        <div class="border rounded-lg overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date and Time</th>
+                                        <th>Patient</th>
+                                        <th>Department</th>
+                                        <th>Reason</th>
+                                        <th>Status</th>
+                                        <th>Queue Token</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="managerAppointmentsBody">
+                                    <tr><td colspan="7" class="text-center text-gray-500">No appointments scheduled</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Activity Log Tab -->
+                    <div id="managerAuditTab" class="tab-content hidden">
+                        <h3 class="mb-2 text-center">Staff Activity</h3>
+                        <p class="text-center text-gray-600 mb-4">Recent sign-ins and operational changes. Patient names and clinical notes are excluded.</p>
+                        <div class="flex justify-end mb-3">
+                            <button onclick="updateAuditLog()" class="btn btn-outline text-sm">Refresh activity</button>
+                        </div>
+                        <div class="border rounded-lg overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date and Time</th>
+                                        <th>Staff Role</th>
+                                        <th>Staff ID</th>
+                                        <th>Action</th>
+                                        <th>Record</th>
+                                        <th>Details</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="managerAuditBody">
+                                    <tr><td colspan="6" class="text-center text-gray-500">No activity recorded yet</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Database Health Tab -->
+                    <div id="managerDataHealthTab" class="tab-content hidden">
+                        <h3 class="mb-2 text-center">Database Health</h3>
+                        <p class="text-center text-gray-600 mb-4">Aggregate record counts and data consistency checks. Patient details are not shown here.</p>
+                        <p id="databaseHealthStatus" class="text-center font-semibold mb-4">Loading database checks…</p>
+                        <div class="flex justify-end mb-3">
+                            <button onclick="updateDatabaseHealth()" class="btn btn-outline text-sm">Refresh checks</button>
+                        </div>
+                        <div id="databaseCounts" class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6"></div>
+                        <div class="border rounded-lg overflow-x-auto">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Check</th>
+                                        <th>Result</th>
+                                        <th>Count</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="databaseHealthChecks">
+                                    <tr><td colspan="3" class="text-center text-gray-500">No database checks loaded</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -796,18 +987,13 @@
                         <thead>
                             <tr>
                                 <th>Token</th>
-                                <th>Name</th>
-                                <th>Age</th>
-                                <th>Gender</th>
                                 <th>Department</th>
-                                <th>Illness</th>
-                                <th>Contact</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
                         <tbody id="waitingPatientsBody">
                             <tr>
-                                <td colspan="8" class="text-center text-gray-500">No patients waiting</td>
+                                <td colspan="3" class="text-center text-gray-500">No patients waiting</td>
                             </tr>
                         </tbody>
                     </table>
@@ -846,10 +1032,11 @@
 // ===================================================
 // CONFIG & APP STATE
 // ===================================================
-const API_BASE = "http://127.0.0.1:5000/api";
+const API_BASE = `${window.location.origin}/api`;
 
 const appState = {
   currentPage: "main",          // 'main' | 'doctor' | 'receptionist' | 'manager' | 'patients'
+  role: null,
   currentDoctor: null,          // { id, name, department, address, contact }
   currentPatientForConsult: null,
   receptionistTab: "register",  // 'register' | 'all'
@@ -858,6 +1045,30 @@ const appState = {
 
 // small helper
 const el = (id) => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
+function matchesPatientSearch(patient, query) {
+  if (!query) return true;
+  const searchable = [
+    patient.tokenNumber, patient.name, patient.contactNumber, patient.department,
+    patient.illness, patient.status, patient.diagnosis, patient.doctorName
+  ];
+  return searchable.some(value => String(value ?? "").toLowerCase().includes(query));
+}
+
+let patientSearchTimer;
+function schedulePatientSearch(view) {
+  clearTimeout(patientSearchTimer);
+  patientSearchTimer = setTimeout(() => {
+    if (view === "manager") updateManagerDatabase();
+    else updateReceptionistAllPatients();
+  }, 200);
+}
 
 // safe json parse
 async function safeJSON(resp) {
@@ -873,8 +1084,11 @@ async function safeJSON(resp) {
 // NAVIGATION & INIT
 // ===================================================
 function navigateTo(page) {
+  if (page === "manager" && appState.role !== "manager") page = "managerLogin";
+  if (page === "doctor" && appState.role !== "doctor") page = "doctorLogin";
+  if (page === "receptionist" && appState.role !== "receptionist") page = "receptionistLogin";
   const pages = [
-    "mainPage", "doctorLogin", "managerLogin",
+    "mainPage", "doctorLogin", "managerLogin", "receptionistLogin",
     "doctorPage", "receptionistPage", "patientsPage", "managerPage"
   ];
   pages.forEach(pid => { const n = el(pid); if (n) n.classList.add("hidden"); });
@@ -893,6 +1107,7 @@ function navigateTo(page) {
     updateDoctorPage();
   } else if (page === "receptionist") {
     updateDepartmentButtons();
+    populateAppointmentDepartment();
     switchReceptionistTab("register");
   } else if (page === "patients") {
     updatePatientsPage();
@@ -902,19 +1117,28 @@ function navigateTo(page) {
   }
 }
 
-// Initial setup on DOMContentLoaded
-window.addEventListener("DOMContentLoaded", () => {
-  navigateTo("main");
-
-  // initial loads
+// Restore the authenticated role when the browser reloads.
+window.addEventListener("DOMContentLoaded", async () => {
+  const appointmentInput = el("appointmentAt");
+  if (appointmentInput) {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    appointmentInput.min = now.toISOString().slice(0, 16);
+  }
+  try {
+    const response = await fetch(`${API_BASE}/auth/session`);
+    const data = await safeJSON(response);
+    appState.role = data.role || null;
+    if (data.role === "doctor" && data.doctor) appState.currentDoctor = data.doctor;
+    if (data.role === "manager") navigateTo("manager");
+    else if (data.role === "receptionist") navigateTo("receptionist");
+    else if (data.role === "doctor") navigateTo("doctor");
+    else navigateTo("main");
+  } catch (err) {
+    appState.role = null;
+    navigateTo("main");
+  }
   updateDepartmentButtons();
-  updateManagerDepartmentsList();
-  updateManagerDepartmentStats();
-  updateManagerDoctorSignIn();
-  updateManagerDatabase();
-
-  // small warm-up refresh
-  setTimeout(() => safeRefresh(), 250);
 });
 
 // ===================================================
@@ -930,7 +1154,10 @@ function switchManagerTab(tab) {
     settings: "managerSettingsTab",
     stats: "managerStatsTab",
     doctors: "managerDoctorsTab",
-    database: "managerDatabaseTab"
+    database: "managerDatabaseTab",
+    appointments: "managerAppointmentsTab",
+    audit: "managerAuditTab",
+    dataHealth: "managerDataHealthTab"
   };
 
   // hide all
@@ -943,6 +1170,9 @@ function switchManagerTab(tab) {
   else if (tab === "stats") triggers[1] && triggers[1].classList.add("active");
   else if (tab === "doctors") triggers[2] && triggers[2].classList.add("active");
   else if (tab === "database") triggers[3] && triggers[3].classList.add("active");
+  else if (tab === "appointments") triggers[4] && triggers[4].classList.add("active");
+  else if (tab === "audit") triggers[5] && triggers[5].classList.add("active");
+  else if (tab === "dataHealth") triggers[6] && triggers[6].classList.add("active");
 
   // one-off refresh after switching
   setTimeout(() => safeRefresh(), 120);
@@ -1012,8 +1242,8 @@ async function updateManagerDepartmentsList() {
     for (const [name, fee] of Object.entries(departments)) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${name}</td>
-        <td>₹${fee}</td>
+        <td>${escapeHTML(name)}</td>
+        <td>₹${escapeHTML(fee)}</td>
         <td><button class="btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
       `;
       const delBtn = tr.querySelector("button");
@@ -1073,27 +1303,7 @@ async function handleAddDepartment(event) {
 }
 
 async function updateManagerDepartmentStats() {
-  try {
-    const res = await fetch(`${API_BASE}/departments`);
-    const departments = await safeJSON(res);
-    const tbody = el("departmentsListBody");
-    if (!tbody) return;
-    tbody.innerHTML = "";
-    if (!departments || Object.keys(departments).length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500">No departments configured yet</td></tr>`;
-      return;
-    }
-    for (const [name, fee] of Object.entries(departments)) {
-      tbody.innerHTML += `
-        <tr>
-          <td>${name}</td>
-          <td>₹${fee}</td>
-          <td><button onclick="deleteDepartment('${encodeURIComponent(name)}')" class="btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
-        </tr>`;
-    }
-  } catch (err) {
-    console.error("updateManagerDepartmentStats error:", err);
-  }
+  await showDepartmentCards();
 }
 
 // Delete department wrapper for compatibility (some places call deleteDepartment(name) directly)
@@ -1134,8 +1344,8 @@ async function showDepartmentCards() {
     for (const [name, fee] of Object.entries(departments)) {
       const card = document.createElement("div");
       card.className = "card p-4 text-center";
-      card.innerHTML = `<h4 class="text-lg font-semibold text-indigo-800">${name}</h4>
-                        <p class="text-gray-600">Consultation Fee: ₹${fee}</p>`;
+      card.innerHTML = `<h4 class="text-lg font-semibold text-indigo-800">${escapeHTML(name)}</h4>
+                        <p class="text-gray-600">Consultation Fee: ₹${escapeHTML(fee)}</p>`;
       grid.appendChild(card);
     }
   } catch (err) {
@@ -1160,6 +1370,24 @@ async function populateDepartmentDropdown() {
     }
   } catch (err) {
     console.error("populateDepartmentDropdown error", err);
+  }
+}
+
+async function populateAppointmentDepartment() {
+  const select = el("appointmentDepartment");
+  if (!select) return;
+  select.innerHTML = '<option value="">Select department</option>';
+  try {
+    const response = await fetch(`${API_BASE}/departments`);
+    const departments = await safeJSON(response);
+    for (const department of Object.keys(departments || {})) {
+      const option = document.createElement("option");
+      option.value = department;
+      option.textContent = department;
+      select.appendChild(option);
+    }
+  } catch (err) {
+    console.error("populateAppointmentDepartment error", err);
   }
 }
 
@@ -1212,13 +1440,13 @@ async function updateManagerDoctorSignIn() {
     tbody.innerHTML = ids.map(id => {
       const d = doctors[id];
       return `<tr>
-        <td><span class="badge badge-secondary">${id}</span></td>
-        <td>${d.password}</td>
-        <td>${d.name}</td>
-        <td>${d.department}</td>
-        <td>${d.address}</td>
-        <td>${d.contact}</td>
-        <td><button data-id="${id}" class="del-doc btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
+        <td><span class="badge badge-secondary">${escapeHTML(id)}</span></td>
+        <td>${d.credentialsProtected ? "Protected" : "Upgrade on next sign-in"}</td>
+        <td>${escapeHTML(d.name)}</td>
+        <td>${escapeHTML(d.department)}</td>
+        <td>${escapeHTML(d.address)}</td>
+        <td>${escapeHTML(d.contact)}</td>
+        <td><button data-id="${escapeHTML(id)}" class="del-doc btn btn-ghost text-red-600 text-sm py-1 px-2">Delete</button></td>
       </tr>`;
     }).join("");
     // attach handlers
@@ -1254,6 +1482,7 @@ async function handleDoctorLogin(event) {
     });
     const data = await safeJSON(res);
     if (data.success && data.doctor) {
+      appState.role = "doctor";
       appState.currentDoctor = { id, ...data.doctor };
       el("doctorWelcome").textContent = `Welcome, ${data.doctor.name}`;
       el("doctorDept").textContent = data.doctor.department;
@@ -1272,6 +1501,8 @@ async function handleDoctorLogin(event) {
 }
 
 function handleDoctorLogout() {
+  fetch(`${API_BASE}/auth/logout`, { method: "POST" }).catch(() => {});
+  appState.role = null;
   appState.currentDoctor = null;
   appState.currentPatientForConsult = null;
   // reset UI
@@ -1279,6 +1510,36 @@ function handleDoctorLogout() {
   if (el("doctorDept")) el("doctorDept").textContent = "Department";
   if (el("waitingPatients")) el("waitingPatients").classList.remove("hidden");
   if (el("consultationForm")) el("consultationForm").classList.add("hidden");
+  navigateTo("main");
+}
+
+async function handleReceptionistLogin(event) {
+  event && event.preventDefault();
+  const password = (el("receptionistPassword")?.value || "").trim();
+  try {
+    const response = await fetch(`${API_BASE}/receptionist/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password })
+    });
+    const data = await safeJSON(response);
+    if (data.success) {
+      appState.role = "receptionist";
+      navigateTo("receptionist");
+    } else {
+      el("receptionistLoginError")?.classList.remove("hidden");
+    }
+  } catch (err) {
+    console.error("receptionist login error", err);
+    el("receptionistLoginError")?.classList.remove("hidden");
+  }
+}
+
+async function logoutToMain() {
+  try { await fetch(`${API_BASE}/auth/logout`, { method: "POST" }); } catch (_) {}
+  appState.role = null;
+  appState.currentDoctor = null;
+  appState.currentPatientForConsult = null;
   navigateTo("main");
 }
 
@@ -1300,7 +1561,6 @@ async function handlePatientRegistration(event) {
   if (!name || !age || !gender) { alert("⚠️ Please fill all required fields."); return; }
 
   const payload = { name, age, gender, contactNumber, address, illness, department };
-  console.log("Register patient payload:", payload);
 
   try {
     const res = await fetch(`${API_BASE}/patients`, {
@@ -1309,7 +1569,6 @@ async function handlePatientRegistration(event) {
       body: JSON.stringify(payload)
     });
     const result = await safeJSON(res);
-    console.log("Registration result:", result);
     if (result.success) {
       alert(`✅ Patient registered!\nToken: ${result.token}\nFee: ₹${result.fee}`);
       // reset form and department highlight
@@ -1340,31 +1599,130 @@ async function updateReceptionistAllPatients() {
     const tbody = el("allPatientsBody");
     if (!tbody) return;
 
+    const query = (el("patientSearch")?.value || "").trim().toLowerCase();
+    const visiblePatients = (patients || []).filter(patient => matchesPatientSearch(patient, query));
     const total = (patients || []).length;
-    const waiting = (patients || []).filter(p => p.status === "waiting").length;
-    const called = (patients || []).filter(p => p.status === "called").length;
-    const consulted = (patients || []).filter(p => p.status === "consulted").length;
-    el("patientSummary") && (el("patientSummary").textContent = `Overall: ${total} | Waiting: ${waiting} | Called: ${called} | Consulted: ${consulted}`);
+    const waiting = visiblePatients.filter(p => p.status === "waiting").length;
+    const called = visiblePatients.filter(p => p.status === "called").length;
+    const consulted = visiblePatients.filter(p => p.status === "consulted").length;
+    el("patientSummary") && (el("patientSummary").textContent = `Showing ${visiblePatients.length} of ${total} | Waiting: ${waiting} | Called: ${called} | Consulted: ${consulted}`);
 
-    if (!patients || patients.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center text-gray-500">No patients registered yet</td></tr>';
+    if (!visiblePatients.length) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500">${query ? "No matching patients" : "No patients registered yet"}</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = (patients || []).map(p => {
+    tbody.innerHTML = visiblePatients.map(p => {
       return `<tr>
-        <td>${p.tokenNumber}</td>
-        <td>${p.name}</td>
-        <td>${p.age}</td>
-        <td>${p.gender}</td>
-        <td>${p.department}</td>
-        <td>${p.illness}</td>
-        <td>${p.status}</td>
-        <td>₹${p.fee || 0}</td>
+        <td>${escapeHTML(p.tokenNumber)}</td>
+        <td>${escapeHTML(p.name)}</td>
+        <td>${escapeHTML(p.age)}</td>
+        <td>${escapeHTML(p.gender)}</td>
+        <td>${escapeHTML(p.department)}</td>
+        <td>${escapeHTML(p.illness)}</td>
+        <td>${escapeHTML(p.status)}</td>
+        <td>₹${escapeHTML(p.fee || 0)}</td>
       </tr>`;
     }).join("");
   } catch (err) {
     console.error("updateReceptionistAllPatients error:", err);
+  }
+}
+
+async function handleAppointmentCreate(event) {
+  event && event.preventDefault();
+  const localDate = el("appointmentAt")?.value || "";
+  const parsedDate = new Date(localDate);
+  if (!localDate || Number.isNaN(parsedDate.getTime())) {
+    alert("Choose a valid appointment date and time.");
+    return;
+  }
+  const payload = {
+    name: (el("appointmentName")?.value || "").trim(),
+    age: Number(el("appointmentAge")?.value),
+    gender: el("appointmentGender")?.value || "",
+    contactNumber: (el("appointmentContact")?.value || "").trim(),
+    department: el("appointmentDepartment")?.value || "",
+    reason: (el("appointmentReason")?.value || "").trim(),
+    scheduledFor: parsedDate.toISOString()
+  };
+  try {
+    const response = await fetch(`${API_BASE}/appointments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await safeJSON(response);
+    if (!result.success) {
+      alert(result.message || "Could not save appointment");
+      return;
+    }
+    event.target.reset();
+    await updateAppointments();
+    await updateAppointments("managerAppointmentsBody");
+    await updateDoctorAppointments();
+    alert("Appointment scheduled.");
+  } catch (err) {
+    console.error("handleAppointmentCreate error", err);
+    alert("Server error while saving appointment.");
+  }
+}
+
+async function updateAppointments(targetId = "appointmentListBody") {
+  try {
+    const response = await fetch(`${API_BASE}/appointments`);
+    const appointments = await safeJSON(response);
+    const tbody = el(targetId);
+    if (!tbody) return;
+    if (!response.ok || !appointments.length) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center text-gray-500">No appointments scheduled</td></tr>';
+      return;
+    }
+    tbody.innerHTML = appointments.map(appointment => {
+      const action = appointment.status === "scheduled"
+        ? `<button data-id="${escapeHTML(appointment.id)}" class="appointment-checkin btn bg-teal-600 text-white text-sm px-2 py-1">Check in</button>
+           <button data-id="${escapeHTML(appointment.id)}" class="appointment-cancel btn btn-ghost text-red-600 text-sm px-2 py-1">Cancel</button>`
+        : "—";
+      const status = appointment.status === "checked_in"
+        ? "Checked in"
+        : appointment.status.charAt(0).toUpperCase() + appointment.status.slice(1);
+      return `<tr>
+        <td>${escapeHTML(new Date(appointment.scheduledFor).toLocaleString())}</td>
+        <td>${escapeHTML(appointment.name)} (${escapeHTML(appointment.age)})</td>
+        <td>${escapeHTML(appointment.department)}</td>
+        <td>${escapeHTML(appointment.reason || "—")}</td>
+        <td>${escapeHTML(status)}</td>
+        <td>${escapeHTML(appointment.patientToken || "—")}</td>
+        <td>${action}</td>
+      </tr>`;
+    }).join("");
+    tbody.querySelectorAll(".appointment-checkin").forEach(button => {
+      button.addEventListener("click", () => setAppointmentStatus(button.dataset.id, "check-in"));
+    });
+    tbody.querySelectorAll(".appointment-cancel").forEach(button => {
+      button.addEventListener("click", () => setAppointmentStatus(button.dataset.id, "cancel"));
+    });
+  } catch (err) {
+    console.error("updateAppointments error", err);
+  }
+}
+
+async function setAppointmentStatus(id, action) {
+  if (action === "cancel" && !confirm("Cancel this appointment?")) return;
+  try {
+    const response = await fetch(`${API_BASE}/appointments/${encodeURIComponent(id)}/${action}`, { method: "PUT" });
+    const result = await safeJSON(response);
+    if (!result.success) {
+      alert(result.message || "Could not update appointment");
+      return;
+    }
+    if (action === "check-in") alert(`Patient checked in. Queue token: ${result.token}`);
+    await updateAppointments();
+    await updateAppointments("managerAppointmentsBody");
+    await updateDoctorAppointments();
+    await updatePatientsPage();
+  } catch (err) {
+    console.error("setAppointmentStatus error", err);
   }
 }
 
@@ -1375,21 +1733,18 @@ async function updatePatientsPage() {
     const patients = await safeJSON(res);
     const active = (patients || []).filter(p => p.status !== "consulted");
     const tbody = el("waitingPatientsBody");
-    el("waitingCount") && (el("waitingCount").textContent = `Waiting Patients: ${active.length}`);
+    const waiting = active.filter(p => p.status === "waiting").length;
+    const called = active.filter(p => p.status === "called").length;
+    el("waitingCount") && (el("waitingCount").textContent = `Waiting: ${waiting} | Called: ${called}`);
     if (!tbody) return;
     if (!active.length) {
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500">No patients waiting</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500">No patients waiting</td></tr>`;
       return;
     }
     tbody.innerHTML = active.map(p => `
       <tr class="${p.status === 'called' ? 'bg-green-50' : ''}">
-        <td>${p.tokenNumber}</td>
-        <td>${p.name}</td>
-        <td>${p.age}</td>
-        <td>${p.gender}</td>
-        <td>${p.department}</td>
-        <td>${p.illness}</td>
-        <td>${p.contactNumber || '-'}</td>
+        <td>${escapeHTML(p.tokenNumber)}</td>
+        <td>${escapeHTML(p.department)}</td>
         <td>${p.status === 'called' ? "<span class='text-green-700 font-medium'>Doctor Ready</span>" : "Waiting"}</td>
       </tr>`).join("");
   } catch (err) {
@@ -1404,11 +1759,14 @@ function switchReceptionistTab(tab) {
   triggers.forEach(t => t.classList.remove('active'));
   if (triggers[0]) triggers[0].classList.toggle('active', tab === 'register');
   if (triggers[1]) triggers[1].classList.toggle('active', tab === 'all');
+  if (triggers[2]) triggers[2].classList.toggle('active', tab === 'appointments');
 
   el('registerTab') && el('registerTab').classList.toggle('hidden', tab !== 'register');
-  el('allTab') && el('allTab').classList.toggle('hidden', tab === 'register');
+  el('allTab') && el('allTab').classList.toggle('hidden', tab !== 'all');
+  el('appointmentsTab') && el('appointmentsTab').classList.toggle('hidden', tab !== 'appointments');
 
   if (tab === 'all') updateReceptionistAllPatients();
+  if (tab === 'appointments') updateAppointments();
 }
 
 // ===================================================
@@ -1421,6 +1779,8 @@ async function updateDoctorPage() {
     if (tbody) tbody.innerHTML = `<tr><td colspan="6" class="text-center text-gray-500">No doctor signed in</td></tr>`;
     return;
   }
+
+  await updateDoctorAppointments();
 
   try {
     const res = await fetch(`${API_BASE}/patients`);
@@ -1435,14 +1795,13 @@ async function updateDoctorPage() {
     }
     tbody.innerHTML = queue.map(p => `
       <tr class="${p.status === 'called' ? 'bg-green-50' : ''}">
-        <td>${p.tokenNumber}</td>
-        <td>${p.name}</td>
-        <td>${p.age}</td>
-        <td>${p.gender}</td>
-        <td>${p.illness}</td>
+        <td>${escapeHTML(p.tokenNumber)}</td>
+        <td>${escapeHTML(p.name)}</td>
+        <td>${escapeHTML(p.age)}</td>
+        <td>${escapeHTML(p.gender)}</td>
+        <td>${escapeHTML(p.illness)}</td>
         <td>
-          ${p.status === 'waiting' ? `<button data-token="${p.tokenNumber}" class="call-btn btn bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-2 py-1">Call</button>` : `<span class="text-green-600 font-medium">Called</span>`}
-          <button data-id="${p.id}" class="start-btn btn bg-green-600 text-white text-sm px-2 py-1">Start</button>
+          ${p.status === 'waiting' ? `<button data-token="${escapeHTML(p.tokenNumber)}" class="call-btn btn bg-yellow-500 hover:bg-yellow-600 text-white text-sm px-2 py-1">Call</button>` : `<button data-id="${escapeHTML(p.id)}" class="start-btn btn bg-green-600 text-white text-sm px-2 py-1">Start consultation</button>`}
         </td>
       </tr>`).join("");
 
@@ -1462,6 +1821,30 @@ async function updateDoctorPage() {
 
   } catch (err) {
     console.error("updateDoctorPage error:", err);
+  }
+}
+
+async function updateDoctorAppointments() {
+  if (appState.role !== "doctor") return;
+  try {
+    const response = await fetch(`${API_BASE}/appointments`);
+    const appointments = await safeJSON(response);
+    const tbody = el("doctorAppointmentsBody");
+    if (!tbody) return;
+    const upcoming = (appointments || []).filter(item => item.status === "scheduled");
+    if (!response.ok || !upcoming.length) {
+      tbody.innerHTML = '<tr><td colspan="4" class="text-center text-gray-500">No appointments scheduled</td></tr>';
+      return;
+    }
+    tbody.innerHTML = upcoming.map(item => `
+      <tr>
+        <td>${escapeHTML(new Date(item.scheduledFor).toLocaleString())}</td>
+        <td>${escapeHTML(item.name)} (${escapeHTML(item.age)})</td>
+        <td>${escapeHTML(item.reason || "—")}</td>
+        <td>Scheduled</td>
+      </tr>`).join("");
+  } catch (err) {
+    console.error("updateDoctorAppointments error", err);
   }
 }
 
@@ -1584,31 +1967,102 @@ async function updateManagerDatabase() {
   try {
     const res = await fetch(`${API_BASE}/patients`);
     const patients = await safeJSON(res);
-    const consulted = (patients || []).filter(p => p.status === "consulted");
+    const query = (el("managerPatientSearch")?.value || "").trim().toLowerCase();
+    const allConsulted = (patients || []).filter(p => p.status === "consulted");
+    const consulted = allConsulted.filter(patient => matchesPatientSearch(patient, query));
     const tbody = el("managerDatabaseBody");
-    el("databaseSummary") && (el("databaseSummary").textContent = `Total Consulted Patients: ${consulted.length}`);
+    el("databaseSummary") && (el("databaseSummary").textContent = `Showing ${consulted.length} of ${allConsulted.length} consultations`);
     if (!tbody) return;
     if (!consulted.length) {
-      tbody.innerHTML = `<tr><td colspan="12" class="text-center text-gray-500">No consulted patients yet</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="12" class="text-center text-gray-500">${query ? "No matching consultations" : "No consulted patients yet"}</td></tr>`;
       return;
     }
     tbody.innerHTML = consulted.map(p => `
       <tr>
-        <td>${p.tokenNumber}</td>
-        <td>${p.name}</td>
-        <td>${p.age}</td>
-        <td>${p.gender}</td>
-        <td>${p.contactNumber || '-'}</td>
-        <td>${p.department}</td>
-        <td>${p.illness}</td>
-        <td>${p.findings || '-'}</td>
-        <td>${p.diagnosis || '-'}</td>
-        <td>${p.prescriptions || '-'}</td>
-        <td>₹${p.fee}</td>
-        <td>${p.doctorName || '-'}</td>
+        <td>${escapeHTML(p.tokenNumber)}</td>
+        <td>${escapeHTML(p.name)}</td>
+        <td>${escapeHTML(p.age)}</td>
+        <td>${escapeHTML(p.gender)}</td>
+        <td>${escapeHTML(p.contactNumber || '-')}</td>
+        <td>${escapeHTML(p.department)}</td>
+        <td>${escapeHTML(p.illness)}</td>
+        <td>${escapeHTML(p.findings || '-')}</td>
+        <td>${escapeHTML(p.diagnosis || '-')}</td>
+        <td>${escapeHTML(p.prescriptions || '-')}</td>
+        <td>₹${escapeHTML(p.fee)}</td>
+        <td>${escapeHTML(p.doctorName || '-')}</td>
       </tr>`).join("");
   } catch (err) {
     console.error("updateManagerDatabase error:", err);
+  }
+}
+
+async function updateAuditLog() {
+  try {
+    const response = await fetch(`${API_BASE}/audit?limit=100`);
+    const entries = await safeJSON(response);
+    const tbody = el("managerAuditBody");
+    if (!tbody) return;
+    if (!response.ok || !Array.isArray(entries) || entries.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-gray-500">No activity recorded yet</td></tr>';
+      return;
+    }
+    tbody.innerHTML = entries.map(entry => `
+      <tr>
+        <td>${escapeHTML(new Date(entry.createdAt).toLocaleString())}</td>
+        <td>${escapeHTML(entry.actorRole)}</td>
+        <td>${escapeHTML(entry.actorId)}</td>
+        <td>${escapeHTML(entry.action)}</td>
+        <td>${escapeHTML(entry.entityType)} #${escapeHTML(entry.entityId)}</td>
+        <td>${escapeHTML(entry.details || "—")}</td>
+      </tr>`).join("");
+  } catch (err) {
+    console.error("updateAuditLog error", err);
+  }
+}
+
+async function updateDatabaseHealth() {
+  try {
+    const response = await fetch(`${API_BASE}/manager/database-health`);
+    const result = await safeJSON(response);
+    const status = el("databaseHealthStatus");
+    const counts = el("databaseCounts");
+    const checksBody = el("databaseHealthChecks");
+    if (!response.ok || !result.totals || !Array.isArray(result.checks)) {
+      if (status) status.textContent = "Could not load database health checks.";
+      return;
+    }
+
+    if (status) {
+      status.textContent = result.status === "healthy"
+        ? "No data consistency issues found."
+        : "Some records need review; no data was changed by these checks.";
+      status.className = `text-center font-semibold mb-4 ${result.status === "healthy" ? "text-green-700" : "text-amber-700"}`;
+    }
+    if (counts) {
+      const labels = { departments: "Departments", doctors: "Doctors", patients: "Patients", appointments: "Appointments" };
+      counts.innerHTML = Object.entries(labels).map(([key, label]) => `
+        <div class="card p-4 text-center">
+          <div class="text-sm text-gray-500">${label}</div>
+          <div class="text-2xl font-semibold text-indigo-900">${escapeHTML(result.totals[key] ?? 0)}</div>
+        </div>`).join("");
+    }
+    if (checksBody) {
+      checksBody.innerHTML = result.checks.map(check => {
+        const hasIssue = Number(check.count) > 0;
+        const resultLabel = hasIssue ? (check.severity === "error" ? "Needs attention" : "Review") : "Clear";
+        const resultClass = !hasIssue ? "text-green-700" : check.severity === "error" ? "text-red-700" : "text-amber-700";
+        return `<tr>
+          <td>${escapeHTML(check.label)}</td>
+          <td class="font-medium ${resultClass}">${resultLabel}</td>
+          <td>${escapeHTML(check.count)}</td>
+        </tr>`;
+      }).join("");
+    }
+  } catch (err) {
+    console.error("updateDatabaseHealth error", err);
+    const status = el("databaseHealthStatus");
+    if (status) status.textContent = "Could not load database health checks.";
   }
 }
 
@@ -1623,7 +2077,10 @@ async function safeRefresh() {
     switch (appState.currentPage) {
       case "manager": await refreshManagerTab(); break;
       case "doctor": await updateDoctorPage(); break;
-      case "receptionist": await updateReceptionistAllPatients(); break;
+      case "receptionist":
+        if (appState.receptionistTab === "appointments") await updateAppointments();
+        else if (appState.receptionistTab === "all") await updateReceptionistAllPatients();
+        break;
       case "patients": await updatePatientsPage(); break;
       default: break;
     }
@@ -1641,6 +2098,9 @@ async function refreshManagerTab() {
   else if (tab === "stats") await updateManagerDepartmentStats();
   else if (tab === "doctors") { await populateDepartmentDropdown(); await updateManagerDoctorSignIn(); }
   else if (tab === "database") await updateManagerDatabase();
+  else if (tab === "appointments") await updateAppointments("managerAppointmentsBody");
+  else if (tab === "audit") await updateAuditLog();
+  else if (tab === "dataHealth") await updateDatabaseHealth();
 }
 
 // Interval & visibility refresh
@@ -1666,6 +2126,7 @@ window.handleManagerLogin = async (e) => {
     });
     const data = await safeJSON(resp);
     if (data.success) {
+      appState.role = "manager";
       navigateTo("manager");
       setTimeout(() => safeRefresh(), 150);
     } else {
@@ -1677,6 +2138,8 @@ window.handleManagerLogin = async (e) => {
   }
 };
 window.handleDoctorLogin = handleDoctorLogin;
+window.handleReceptionistLogin = handleReceptionistLogin;
+window.handleAppointmentCreate = handleAppointmentCreate;
 window.handlePatientRegistration = handlePatientRegistration;
 window.handleAddDepartment = handleAddDepartment;
 window.handleDoctorRegistration = handleDoctorRegistration;
